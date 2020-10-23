@@ -1,0 +1,58 @@
+version: '2'
+#Servicios
+services:
+
+  #Servicio 1, MariaDB
+  servicio1:
+    #Nombre del contenedor
+    container_name: contenedor1
+    #Imagen del contenedor
+    image: 'docker.io/bitnami/mariadb:10.3-debian-10'
+    #Variables del entorno
+    environment:
+      - MARIADB_ROOT_USER=root
+      - MARIADB_ROOT_PASSWORD=root
+      - MARIADB_USER=matomo_db_user
+      - MARIADB_PASSWORD=matomo
+      - MARIADB_DATABASE=matomo_db
+      - MARIADB_EXTRA_FLAGS=--max_allowed_packet=64MB
+    #Persistencia de datos
+    volumes:
+      - 'mariadb_data:/bitnami'
+    #Redireccionamiento de puertos
+    ports:
+    - '3307:3306'
+
+  #Servicio 2, Matomo
+  servicio2:
+    #Nombre del contenedor
+    container_name: contenedor2
+    #Imagen del contenedor
+    image: 'docker.io/bitnami/matomo:3-debian-10'
+    #Variables del entorno
+    environment:
+      - MARIADB_HOST=servicio1
+      - MARIADB_PORT_NUMBER=3306
+      - MATOMO_DATABASE_USER=matomo_db_user
+      - MATOMO_DATABASE_PASSWORD=matomo
+      - MATOMO_DATABASE_NAME=matomo_db
+      - MATOMO_USER=salva
+      - MATOMO_PASSWORD=1q2w3e4r5t
+      - ALLOW_EMPTY_PASSWORD=yes
+    #Redireccionamiento de puertos
+    ports:
+      - '80:80'
+      - '444:443'
+    #Indica que este servicio es dependiente del otro servicio
+    depends_on:
+      - servicio1
+    #Persistencia de datos
+    volumes:
+      - 'matomo_data:/bitnami'
+      - './data/matomo:/opt/bitnami/matomo/Usuario'
+    
+volumes:
+  mariadb_data:
+    driver: local
+  matomo_data:
+    driver: local
