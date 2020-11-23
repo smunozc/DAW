@@ -1,0 +1,27 @@
+version: '3'
+services:
+  mariadb:
+    image: 'mariadb'
+    container_name: 'bd1'
+    ports:
+      - '3346:3306'
+    environment: 
+      - MYSQL_ROOT_PASSWORD=iesalixar
+      - MYSQL_USER=daw2tarde
+      - MYSQL_PASSWORD=daw2tarde
+    volumes:
+      - 'data:/var/lib/mysql'
+  apachephp:
+    image: 'php:7.2-apache'
+    container_name: 'apachephp'
+    ports:
+      - '9090:80'
+    volumes: 
+      - 'webfolder:/var/www/html'
+    depends_on: 
+      - mariadb
+volumes:
+  webfolder:
+    driver: local
+  data:
+    driver: local  
